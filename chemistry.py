@@ -205,11 +205,45 @@ def details(eqn):  # Input a balanced equation, and this will describe some part
                 out4 += ", "
     except KeyError:
         print("Could not find a referenced element.")
-    except:
-        print("An unknown error occurred in determining details for the given reaction.")
+    except Exception as e:
+        print("An error occurred in determining details for the given reaction.")
+        print(e)
     else:
         print(out1)
         print(out2)
         print(out3)
         print(out4)
+    return
+
+def composition(comp, printmass=True): # Takes a formula for a chemical compound and prints the percent composition, by mass, of its constituent elements
+    elems = [[],[]]
+    totalmass = 0
+    outstr = f"{comp} elemental mass compositions: "
+    out2 = ""
+    try:
+        elsplit = re.findall("([A-Z][a-z]?)([0-9]*)",comp)
+        for elem in elsplit:
+            name = elem[0]
+            count = elem[1]
+            if count == "": count = "1"
+            x = float(elements[elements.Symbol == name].AtomicMass) * int(count)
+            totalmass += x
+            if name in elems[0]:
+                i = elems[0].index(name)
+                elems[1][i] += x
+            else:
+                elems[0].append(name)
+                elems[1].append(x)
+        for i in range(len(elems[0])):
+            if i != 0: outstr += ", "
+            outstr += f"{100*elems[1][i]/totalmass:.3f}% {elems[0][i]}"
+        out2 = f"  1 mol has an atomic mass of {totalmass:.3f} g"
+    except KeyError:
+        print("Could not find a referenced element.")
+    except Exception as e:
+        print("An error occurred in calculating the elemental mass compositions of the given compound.")
+        print(e)
+    else:
+        print(outstr)
+        if printmass: print(out2)
     return
